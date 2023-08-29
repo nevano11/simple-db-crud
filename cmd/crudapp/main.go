@@ -1,7 +1,17 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+	"simple-db-crud/internal/pkg/config"
+)
 
 func main() {
-	fmt.Println("Hello CRUD")
+	cfg, err := config.New("config.json")
+	if err != nil {
+		log.Fatal(err.Error())
+		return
+	}
+
+	fmt.Println(cfg)
 }
