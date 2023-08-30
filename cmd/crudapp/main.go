@@ -1,17 +1,25 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"simple-db-crud/internal/pkg/config"
+	"simple-db-crud/internal/pkg/server"
 )
 
 func main() {
+	// * Read config
 	cfg, err := config.New("config.json")
 	if err != nil {
 		log.Fatal(err.Error())
 		return
 	}
 
-	fmt.Println(cfg)
+	// * Create server
+	apiserver, err := server.New(cfg)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	// * Run server
+	apiserver.Start()
 }
