@@ -8,7 +8,7 @@ import (
 
 func main() {
 	// * Read config
-	cfg, err := config.New("config.json")
+	cfg, err := config.New("configs/config.json")
 	if err != nil {
 		log.Fatal(err.Error())
 		return
@@ -21,5 +21,7 @@ func main() {
 	}
 
 	// * Run server
-	apiserver.Start()
+	if err := apiserver.Start(); err != nil {
+		log.Fatal(err.Error())
+	}
 }

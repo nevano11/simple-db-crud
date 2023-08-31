@@ -1,18 +1,19 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 )
 
-func (s *ApiServer) configureRoutes() *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/", s.helloHandler)
-	return r
+func (s *ApiServer) configureRoutes() {
+	s.engine.GET("/", s.helloHandler)
+
+	//s.engine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 }
 
-func (s *ApiServer) helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome to site")
+func (s *ApiServer) helloHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Welcome to site",
+	})
 }
