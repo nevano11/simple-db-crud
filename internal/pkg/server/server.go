@@ -1,16 +1,16 @@
 package server
 
 import (
-	"net/http"
 	"simple-db-crud/internal/pkg/config"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 type ApiServer struct {
 	logger *logrus.Logger
 	config *config.Config
-	server *http.Server
+	engine *gin.Engine
 }
 
 func New(config *config.Config) (*ApiServer, error) {
@@ -21,19 +21,17 @@ func New(config *config.Config) (*ApiServer, error) {
 	}
 
 	// * Create server
-	server := &http.Server{
-		Addr: ":" + config.Server.Port,
-	}
+	engine := gin.Default()
 
 	// * Create apiserver instance
 	apiServer := &ApiServer{
 		logger: logger,
 		config: config,
-		server: server,
+		engine: engine,
 	}
 
 	// * Add router
-	apiServer.server.Handler = apiServer.configureRoutes()
+	apiServer.configureRoutes()
 	return apiServer, nil
 }
 
@@ -41,7 +39,7 @@ func (s *ApiServer) Start() error {
 	s.logger.Infof("Server is starting on http://localhost:%s", s.config.Server.Port)
 	s.logger.Debugf("Application config is %s", s.config)
 
-	return s.server.ListenAndServe()
+	return s.engine.Run(":" + s.config.Server.Port)
 }
 
 func configureLogger(logLevel string) (*logrus.Logger, error) {

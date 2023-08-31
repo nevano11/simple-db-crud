@@ -1,8 +1,0 @@
-{
-    "logger": {
-        "log-level": "debug"
-    },
-    "server": {
-        "port": "8100"
-    }
-}
