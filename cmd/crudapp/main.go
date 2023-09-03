@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/spf13/viper"
 	"log"
-	"simple-db-crud/internal/pkg/config"
 	"simple-db-crud/internal/pkg/handler"
 	"simple-db-crud/internal/pkg/repository"
 	"simple-db-crud/internal/pkg/server"
@@ -11,10 +11,9 @@ import (
 
 func main() {
 	// Read config
-	cfg, err := config.New("configs/config.json")
+	err := initConfig()
 	if err != nil {
-		log.Fatal(err.Error())
-		return
+		log.Fatal(err)
 	}
 
 	// Create repository, service, handler
@@ -26,7 +25,10 @@ func main() {
 	routes := handler.InitRoutes()
 
 	// Create server
-	apiserver, err := server.New(cfg, routes)
+	apiserver, err := server.New(
+		viper.GetString("logger.log-level"),
+		viper.GetString("server.port"),
+		routes)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -35,4 +37,10 @@ func main() {
 	if err := apiserver.Start(); err != nil {
 		log.Fatal(err.Error())
 	}
+}
+
+func initConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigName("config")
+	return viper.ReadInConfig()
 }
