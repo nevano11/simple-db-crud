@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"net/http"
-	"simple-db-crud/internal/pkg/config"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -11,13 +10,12 @@ import (
 
 type ApiServer struct {
 	logger *logrus.Logger
-	config *config.Config
 	server *http.Server
 }
 
-func New(config *config.Config, handler http.Handler) (*ApiServer, error) {
+func New(logLevel, port string, handler http.Handler) (*ApiServer, error) {
 	// * Create logger instance
-	logger, err := configureLogger(config.Logger.LogLevel)
+	logger, err := configureLogger(logLevel)
 	if err != nil {
 		return nil, err
 	}
@@ -25,9 +23,8 @@ func New(config *config.Config, handler http.Handler) (*ApiServer, error) {
 	// * Create apiserver instance
 	apiServer := &ApiServer{
 		logger: logger,
-		config: config,
 		server: &http.Server{
-			Addr:              ":" + config.Server.Port,
+			Addr:              ":" + port,
 			Handler:           handler,
 			ReadHeaderTimeout: 2 << 20,
 			ReadTimeout:       10 * time.Second,
@@ -39,9 +36,6 @@ func New(config *config.Config, handler http.Handler) (*ApiServer, error) {
 }
 
 func (s *ApiServer) Start() error {
-	s.logger.Infof("Server is starting on http://localhost:%s", s.config.Server.Port)
-	s.logger.Debugf("Application config is %s", s.config)
-
 	return s.server.ListenAndServe()
 }
 
