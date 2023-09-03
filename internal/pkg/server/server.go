@@ -1,37 +1,40 @@
 package server
 
 import (
+	"context"
+	"net/http"
 	"simple-db-crud/internal/pkg/config"
+	"time"
 
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 type ApiServer struct {
 	logger *logrus.Logger
 	config *config.Config
-	engine *gin.Engine
+	server *http.Server
 }
 
-func New(config *config.Config) (*ApiServer, error) {
+func New(config *config.Config, handler http.Handler) (*ApiServer, error) {
 	// * Create logger instance
 	logger, err := configureLogger(config.Logger.LogLevel)
 	if err != nil {
 		return nil, err
 	}
 
-	// * Create server
-	engine := gin.Default()
-
 	// * Create apiserver instance
 	apiServer := &ApiServer{
 		logger: logger,
 		config: config,
-		engine: engine,
+		server: &http.Server{
+			Addr:              ":" + config.Server.Port,
+			Handler:           handler,
+			ReadHeaderTimeout: 2 << 20,
+			ReadTimeout:       10 * time.Second,
+			WriteTimeout:      10 * time.Second,
+		},
 	}
 
-	// * Add router
-	apiServer.configureRoutes()
 	return apiServer, nil
 }
 
@@ -39,7 +42,11 @@ func (s *ApiServer) Start() error {
 	s.logger.Infof("Server is starting on http://localhost:%s", s.config.Server.Port)
 	s.logger.Debugf("Application config is %s", s.config)
 
-	return s.engine.Run(":" + s.config.Server.Port)
+	return s.server.ListenAndServe()
+}
+
+func (s *ApiServer) Shutdown(ctx context.Context) {
+	s.Shutdown(ctx)
 }
 
 func configureLogger(logLevel string) (*logrus.Logger, error) {
