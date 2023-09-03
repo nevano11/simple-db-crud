@@ -1,6 +1,6 @@
 module simple-db-crud
 
-go 1.20.0
+go 1.20
 
 require (
 	github.com/kr/pretty v0.3.1 // indirect
