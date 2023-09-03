@@ -36,6 +36,7 @@ func New(logLevel, port string, handler http.Handler) (*ApiServer, error) {
 }
 
 func (s *ApiServer) Start() error {
+	s.logger.Info("Server starting on addr http://localhost" + s.server.Addr)
 	return s.server.ListenAndServe()
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "github.com/lib/pq"
 	"github.com/spf13/viper"
 	"log"
 	"simple-db-crud/internal/pkg/handler"
@@ -16,8 +17,14 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Database
+	db, err := repository.NewPostgresDb(readDbConfig())
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// Create repository, service, handler
-	repos := repository.NewRepository()
+	repos := repository.NewRepository(db)
 	service := service.NewService(repos)
 	handler := handler.NewHandler(service)
 
@@ -39,8 +46,21 @@ func main() {
 	}
 }
 
+// Configuration
 func initConfig() error {
 	viper.AddConfigPath("configs")
 	viper.SetConfigName("config")
 	return viper.ReadInConfig()
+}
+
+// Database
+func readDbConfig() repository.DbConfig {
+	return repository.DbConfig{
+		Host:     viper.GetString("database.host"),
+		Port:     viper.GetString("database.port"),
+		Username: viper.GetString("database.user"),
+		Password: viper.GetString("database.pass"),
+		DbName:   viper.GetString("database.dbname"),
+		SslMode:  viper.GetString("database.sslmode"),
+	}
 }
